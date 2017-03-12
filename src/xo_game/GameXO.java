@@ -6,7 +6,7 @@ import java.util.Scanner;
 /**
  * Java. Console game "Cross-zero"
  * @author Aleksey Malyshev
- * @version 1.0.0 dated March 06, 2017
+ * @version 1.0.1 dated March 12, 2017
  */
 
 public class GameXO {
