@@ -21,6 +21,8 @@ public class GameXO {
     public static Scanner sc = new Scanner(System.in);
     public static Random rnd = new Random();
 
+    public static final int LEN = 3;
+
     public static final int SIZE_X = 3;
     public static final int SIZE_Y = 3;
     public static final char[][] FIELD = new char[SIZE_X][SIZE_Y];
@@ -57,11 +59,7 @@ public class GameXO {
                 System.out.println ("Ничья!!!");
                 break;
             }
-
-
-
         }
-
     }
 
     public static void initMap(){
@@ -91,43 +89,102 @@ public class GameXO {
 
     public static void movePlayer(){
 
-        try {
 
-            do {
-                System.out.println("Ввидите два числа от 1 до " + SIZE_X + " через пробел чтобы сделать ход!!!");
-                x = sc.nextInt() - 1;
-                y = sc.nextInt() - 1;
-            } while (!isBorderField() || !isEmptyCell());
+                 do {
+                     System.out.println("Ввидите два числа от 1 до " + SIZE_X + " через пробел чтобы сделать ход!!!");
+                     x = sc.nextInt() - 1;
+                     y = sc.nextInt() - 1;
+                 } while (!isBorderField(x, y) || !isEmptyCell(x , y));
 
-        }catch (Exception e){
-            System.out.println("Ошибка ввода!!");
-        }
-            FIELD[x][y] = PLAYER_DOT;
+                 FIELD[x][y] = PLAYER_DOT;
+
     }
 
+
     public static void moveAI(){
+        if (aiWin()) return;
+        if (lockPlayer()) return;
 
         do{
             x = rnd.nextInt(SIZE_X);
             y = rnd.nextInt(SIZE_Y);
-        }while (!isEmptyCell());
+        }while (!isEmptyCell(x, y));
             FIELD[x][y] = AI_DOT;
 
         System.out.println("");
-
     }
 
-    public static boolean isEmptyCell (){
+    public static boolean aiWin(){
+
+        for (int i = 0; i <SIZE_X ; i++) {
+            for (int j = 0; j <SIZE_Y ; j++) {
+                if (isEmptyCell(i, j)){
+                    FIELD [i][j] = AI_DOT;
+                    if (checkWin(AI_DOT)) {
+                        return true;
+                    }
+                    FIELD [i][j] = EMPTY_DOT;
+                }
+            }
+        }
+       return false;
+    }
+
+    public static boolean lockPlayer(){
+
+        for (int i = 0; i <SIZE_X ; i++) {
+            for (int j = 0; j <SIZE_Y ; j++) {
+                if (isEmptyCell(i, j)){
+                    FIELD [i][j] = PLAYER_DOT;
+                    if (checkWin(PLAYER_DOT)){
+                        FIELD [i][j] = AI_DOT;
+                        return true;
+                    }
+                    FIELD [i][j] = EMPTY_DOT;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEmptyCell (int x, int y){
         return FIELD [x][y] == EMPTY_DOT;
     }
 
-    public static boolean isBorderField (){
+    public static boolean isBorderField (int x, int y){
         return x >= 0 && x < SIZE_X && y >= 0 && y < SIZE_Y;
     }
 
     public static boolean checkWin (char c){
+
+        for (int i = 0; i <SIZE_X ; i++) {
+            for (int j = 0; j <SIZE_Y ; j++) {
+
+                if (line(i, j, 1, 0, LEN, c)) return true;
+                if (line(i, j, 1, 1, LEN, c)) return true;
+                if (line(i, j, 0, 1, LEN, c)) return true;
+                if (line(i, j, -1, 1, LEN, c)) return true;
+                if (line(i, j, -1, 0, LEN, c)) return true;
+                if (line(i, j, -1, -1, LEN, c)) return true;
+                if (line(i, j, 0, -1, LEN, c)) return true;
+                if (line(i, j, 1, -1, LEN, c)) return true;
+            }
+        }
+
         return false;
     }
+
+    public static boolean line (int x, int y, int vx, int vy, int len, char c){
+
+        int far_x = x + (len - 1)*vx;
+        int far_y = y + (len - 1)*vy;
+        if (!isBorderField(far_x, far_y)) return false;
+        for (int i = 0; i < len ; i++) {
+                if (FIELD [x + i * vx][y + i * vy] != c) return false;
+        }
+        return true;
+    }
+
 
     public static boolean checkFieldFull (){
 
@@ -140,6 +197,4 @@ public class GameXO {
         }
         return true;
     }
-
-
 }
